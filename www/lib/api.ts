@@ -6,7 +6,7 @@ import {
 } from "@/types/types";
 import { parseStringPromise } from "xml2js";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const API_KEY = process.env.NEXT_PUBLIC_X_API_KEY;
 
 /**

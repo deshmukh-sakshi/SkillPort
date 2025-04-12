@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Github, Globe, Linkedin, Twitter, User } from "lucide-react";
+import { Github, Globe, Linkedin, Twitter, User, Code2 } from "lucide-react";
 import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
-import { addUserToNocodb, getUserProfile } from "@/lib/api";
+import { addUserToNocodb } from "@/lib/api";
 import ClientResumeButton from "@/components/ClientResumeButton";
 import {
   Tooltip,
@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/tooltip";
 import { SupportModal } from "@/components/modal/support-modal";
 import { UserProfileBanner } from "@/components/UserProfileBanner";
+import { Profile } from "@/types/types";
+import { useEffect, useState } from "react";
 
 // Utility functions
 const extractDomainName = (url: string) => {
@@ -28,10 +30,39 @@ const iconComponents = {
 };
 
 export async function ProfileSection({ username }: { username: string }) {
-  const user = await getUserProfile(username);
-  await addUserToNocodb(user);
+  // Static profile data
+  const user: Profile = {
+    name: username || "Developer",
+    bio: "Software Developer | Problem Solver",
+    avatar_url: "https://avatars.githubusercontent.com/u/default?v=4",
+    username: username,
+    location: "Earth",
+    profile_url: `https://github.com/${username}`,
+    followers: 100,
+    following: 100,
+    public_repos: 20,
+    pull_requests_merged: 50,
+    issues_closed: 30,
+    achievements: {
+      total_contributions: 500,
+      repositories_contributed_to: 10
+    },
+    social_accounts: [
+      {
+        provider: "linkedin",
+        url: "https://linkedin.com/in/" + username,
+      },
+      {
+        provider: "twitter",
+        url: "https://twitter.com/" + username,
+      }
+    ],
+    readme_content: "",
+    about: "Passionate developer focused on creating impactful solutions",
+    cached: false
+  };
 
-  if (!user) return <ProfileSkeleton />;
+  await addUserToNocodb(user);
 
   return (
     <>
@@ -161,9 +192,76 @@ export async function ProfileSection({ username }: { username: string }) {
               </div>
             </div>
           )}
+
+          {/* GitHub Stats Section */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Github className="w-5 h-5" />
+              <h2 className="font-bold">GitHub Stats</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold">Repositories</h3>
+                <p>{user.public_repos}</p>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold">Pull Requests</h3>
+                <p>{user.pull_requests_merged} merged</p>
+              </div>
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold">Issues</h3>
+                <p>{user.issues_closed} closed</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Coding Platforms Section */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Code2 className="w-5 h-5" />
+              <h2 className="font-bold">Coding Platforms</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {typeof window !== 'undefined' && (
+                <CodingPlatforms />
+              )}
+            </div>
+          </div>
         </div>
       </div>
       <SupportModal user={user} />
+    </>
+  );
+}
+
+// Separate component for coding platforms
+function CodingPlatforms() {
+  const [profiles, setProfiles] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const savedProfiles = localStorage.getItem('coding_profiles');
+    if (savedProfiles) {
+      setProfiles(JSON.parse(savedProfiles));
+    }
+  }, []);
+
+  return (
+    <>
+      {Object.entries(profiles).map(([platform, username]) => 
+        username ? (
+          <div key={platform} className="p-4 border rounded-lg">
+            <h3 className="font-semibold capitalize">{platform}</h3>
+            <a 
+              href={`https://${platform}.com/${username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              @{username}
+            </a>
+          </div>
+        ) : null
+      )}
     </>
   );
 }

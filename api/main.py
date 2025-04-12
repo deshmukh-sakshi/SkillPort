@@ -10,7 +10,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from config.settings import Settings
 from modules.ai_generator import AIDescriptionGenerator
@@ -23,16 +23,13 @@ from utils.user import verify_username, verify_linkedin_username, get_user_data
 app = FastAPI(
     title="Devb Profile API",
     version="2.0.0",
+    description="API for fetching and analyzing developer profiles from GitHub and LinkedIn"
 )
 
-# Initialize Redis client
-if Settings.CACHE_ENABLED:
-    redis_client = redis.Redis(host='redis', port=6379, db=0)
-
-
+# Define middleware first
 class APIKeyMiddleware(BaseHTTPMiddleware):
     """Middleware for API key authentication"""
-    EXCLUDED_PATHS = {"/docs", "/redoc", "/openapi.json"}
+    EXCLUDED_PATHS = {"/", "/docs", "/redoc", "/openapi.json"}
 
     async def dispatch(self, request: Request, call_next):
         if request.url.path in self.EXCLUDED_PATHS or Settings.DEBUG:
@@ -52,6 +49,44 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
             )
 
         return await call_next(request)
+
+# Add middlewares
+app.add_middleware(APIKeyMiddleware)
+
+ALLOWED_ORIGINS = [
+    "https://devb.io",
+    "https://beta.devb.io",
+    "http://localhost:3000",  # For local development
+    "http://localhost:8080"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-API-Key"],
+    expose_headers=[],
+    max_age=600,
+)
+
+# Initialize Redis client
+redis_client = None
+if Settings.CACHE_ENABLED:
+    redis_client = redis.Redis(host='redis', port=6379, db=0)
+
+@app.get("/")
+async def root():
+    """Root endpoint that provides API information and documentation links"""
+    return {
+        "name": "Devb Profile API",
+        "version": "2.0.0",
+        "description": "API for fetching and analyzing developer profiles from GitHub and LinkedIn",
+        "documentation": {
+            "swagger": "/docs",
+            "redoc": "/redoc"
+        }
+    }
 
 async def get_cached_github_profile(username: str) -> Dict[str, Any]:
     """Fetch and cache GitHub profile data"""
@@ -156,27 +191,6 @@ async def fetch_linkedin_profile(username: Annotated[str, Depends(verify_linkedi
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch LinkedIn profile: {str(e)}")
-
-
-
-ALLOWED_ORIGINS = [
-    "https://devb.io",
-    "https://beta.devb.io",
-    "http://localhost:3000",  # For local development
-    "http://localhost:8080"
-]
-
-# Add CORS middleware with specific origins
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,  # Use the whitelist instead of "*"
-    allow_credentials=True,
-    allow_methods=["GET", "OPTIONS"],  # Specify allowed methods
-    allow_headers=["Authorization", "Content-Type", "X-API-Key"],  # Specify allowed headers
-    expose_headers=[],  # Headers that can be exposed to the browser
-    max_age=600,  # How long the results of a preflight request can be cached (in seconds)
-
-)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

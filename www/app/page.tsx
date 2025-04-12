@@ -8,6 +8,7 @@ import ProfileCard from "@/components/profile-card/server";
 import HowItWorksCard from "@/components/how-it-works-card/server";
 import NextContributorCard from "@/components/next-contributor-card";
 import { Compare } from "@/components/ui/compare";
+import UsernameForm from "@/components/UsernameForm";
 
 // Types
 interface Profile {
@@ -138,213 +139,23 @@ async function getContributors(): Promise<Profile[]> {
   }
 }
 
-export default async function Home() {
-  const profiles = await getProfiles();
-  const contributors = await getContributors();
-
-  const howItWorksSteps = [
-    {
-      iconName: "Github" as const,
-      title: "Connect GitHub",
-      description:
-        "Link your GitHub account to automatically showcase your repositories and contributions.",
-    },
-    {
-      iconName: "RefreshCw" as const,
-      title: "Weekly Updates",
-      description:
-        "Your portfolio stays fresh with automatic weekly updates of your latest projects and activities.",
-    },
-    {
-      iconName: "Share2" as const,
-      title: "Share Your Work",
-      description:
-        "Share your curated collection of projects and achievements with the world.",
-    },
-  ];
-
+export default function Home() {
   return (
-    <>
-      <AnimatedNav />
+    <main className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            Effortless Portfolios for{" "}
+            <span className="bg-[#B9FF66] px-4 py-1 rounded-lg">Developers</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Your GitHub profile tells a story.<br />
+            Let us help you narrate it.
+          </p>
+        </div>
 
-      <main className="min-h-screen px-10 pt-20 md:px-24 md:pt-32 pb-0 overflow-hidden">
-        <AnimatedHero />
-
-        {/* Analytics Section */}
-        <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <AnimatedStats
-                value={2050}
-                subtitle="Profiles Generated in 2 Months from Around the Globe"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Compare Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Before & After
-              </h2>
-              <p className="text-xl text-gray-600">
-                See the difference DevB makes to your portfolio
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <Compare
-                firstImage="/images/compare-1.png"
-                secondImage="/images/compare-2.png"
-                firstImageClassName="object-cover object-left-top"
-                secondImageClassname="object-cover object-left-top"
-                className="h-[350px] w-[400px] md:h-[650px] md:w-[500px]"
-                slideMode="hover"
-                // autoplay
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Services Grid */}
-        <section className="py-10 md:pt-20">
-          <div className="container md:mx-auto md:px-4">
-            <div className="flex">
-              <div className="flex flex-col md:flex-row items-center gap-12">
-                <div className="flex-1 space-y-6 order-first md:order-last">
-                  <h1 className="text-2xl md:text-4xl leading-tight">
-                    Stop Portfolio Panic: <br />
-                    Build Yours in a Snap
-                  </h1>
-                  <p className="text-xl text-gray-600">
-                    Staring down a blank screen, dreading the hours it&apos;ll
-                    take to build a portfolio? Not anymore! devb.io is your
-                    coding BFF, turning your messy GitHub profile into a sleek,
-                    professional bio easily, not marathons.
-                  </p>
-                </div>
-                <div className="flex-1 relative md:order-first">
-                  <div className="relative xl:p-20">
-                    <Image
-                      src="/images/graph.png"
-                      alt="Illustration"
-                      width={500}
-                      height={500}
-                      className="w-full rounded-2xl"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Integrations Section */}
-        <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Connect Your Developer Identity
-              </h2>
-              <p className="text-xl text-gray-600">
-                Integrate with your favorite platforms to showcase your complete
-                developer profile
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              <IntegrationCard type="github" index={0} />
-              <IntegrationCard type="linkedin" index={1} />
-              <IntegrationCard type="medium" index={2} />
-              <IntegrationCard type="more" index={3} />
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                How It Works
-              </h2>
-              <p className="text-xl text-gray-600">
-                Create your developer portfolio in three simple steps
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {howItWorksSteps.map((step, index) => (
-                <HowItWorksCard
-                  key={step.title}
-                  iconName={step.iconName}
-                  title={step.title}
-                  description={step.description}
-                  index={index}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Contributors Section */}
-        <section className="py-20">
-          <div className="container mx-auto md:px-4">
-            <div className="max-w-3xl mx-auto text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Our Contributors
-              </h2>
-              <p className="text-xl text-gray-600">
-                Meet the amazing developers who have contributed to making DevB
-                better
-              </p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
-              {contributors.map((profile, index) => (
-                <ProfileCard
-                  key={profile.username}
-                  name={profile.name}
-                  username={profile.username}
-                  avatarUrl={profile.avatar_url}
-                  bio={profile.bio}
-                  index={index}
-                />
-              ))}
-              <NextContributorCard index={contributors.length} />
-            </div>
-          </div>
-        </section>
-
-        {/* Recent Profiles Section */}
-        {profiles.length > 0 && (
-          <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-            <div className="container mx-auto px-4">
-              <div className="max-w-3xl mx-auto text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  Recent Profiles
-                </h2>
-                <p className="text-xl text-gray-600">
-                  Check out the latest developers who created their portfolios
-                  using DevB
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                {profiles.map((profile, index) => (
-                  <div key={profile.username}>
-                    <ProfileCard
-                      name={profile.name}
-                      username={profile.username}
-                      avatarUrl={profile.avatar_url}
-                      bio={profile.bio}
-                      index={index}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-      </main>
-      <Footer />
-    </>
+        <UsernameForm />
+      </div>
+    </main>
   );
 }

@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: devb
+Version: 2.0.0
+License-File: LICENSE
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: sqlalchemy
+Requires-Dist: alembic
+Requires-Dist: asyncpg
+Requires-Dist: python-dotenv
+Dynamic: license-file
+Dynamic: requires-dist
