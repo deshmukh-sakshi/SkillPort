@@ -16,13 +16,6 @@ export default function UsernameForm() {
     e.preventDefault();
     if (!usernames.github.trim()) return;
     
-    // Store other platform usernames in localStorage
-    localStorage.setItem("coding_profiles", JSON.stringify({
-      leetcode: usernames.leetcode,
-      codeforces: usernames.codeforces,
-      codechef: usernames.codechef
-    }));
-
     // Navigate to the profile page with GitHub username
     router.push(`/${usernames.github}`);
   };

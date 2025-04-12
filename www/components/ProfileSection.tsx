@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { Github, Globe, Linkedin, Twitter, User, Code2 } from "lucide-react";
+import { Github, Globe, Linkedin, Twitter, User, BarChart } from "lucide-react";
 import { ProfileSkeleton } from "@/components/skeletons/profile-skeleton";
 import { addUserToNocodb } from "@/lib/api";
 import ClientResumeButton from "@/components/ClientResumeButton";
@@ -11,7 +13,7 @@ import {
 import { SupportModal } from "@/components/modal/support-modal";
 import { UserProfileBanner } from "@/components/UserProfileBanner";
 import { Profile } from "@/types/types";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 
 // Utility functions
 const extractDomainName = (url: string) => {
@@ -29,7 +31,7 @@ const iconComponents = {
   generic: Globe,
 };
 
-export async function ProfileSection({ username }: { username: string }) {
+export function ProfileSection({ username }: { username: string }) {
   // Static profile data
   const user: Profile = {
     name: username || "Developer",
@@ -61,8 +63,6 @@ export async function ProfileSection({ username }: { username: string }) {
     about: "Passionate developer focused on creating impactful solutions",
     cached: false
   };
-
-  await addUserToNocodb(user);
 
   return (
     <>
@@ -195,9 +195,18 @@ export async function ProfileSection({ username }: { username: string }) {
 
           {/* GitHub Stats Section */}
           <div className="mt-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Github className="w-5 h-5" />
-              <h2 className="font-bold">GitHub Stats</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Github className="w-5 h-5" />
+                <h2 className="font-bold">GitHub Stats</h2>
+              </div>
+              <Link 
+                href={`/${user.username}/stats`}
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-black"
+              >
+                <BarChart className="w-4 h-4" />
+                View Coding Stats
+              </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-lg">
@@ -214,54 +223,9 @@ export async function ProfileSection({ username }: { username: string }) {
               </div>
             </div>
           </div>
-
-          {/* Coding Platforms Section */}
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Code2 className="w-5 h-5" />
-              <h2 className="font-bold">Coding Platforms</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {typeof window !== 'undefined' && (
-                <CodingPlatforms />
-              )}
-            </div>
-          </div>
         </div>
       </div>
       <SupportModal user={user} />
-    </>
-  );
-}
-
-// Separate component for coding platforms
-function CodingPlatforms() {
-  const [profiles, setProfiles] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const savedProfiles = localStorage.getItem('coding_profiles');
-    if (savedProfiles) {
-      setProfiles(JSON.parse(savedProfiles));
-    }
-  }, []);
-
-  return (
-    <>
-      {Object.entries(profiles).map(([platform, username]) => 
-        username ? (
-          <div key={platform} className="p-4 border rounded-lg">
-            <h3 className="font-semibold capitalize">{platform}</h3>
-            <a 
-              href={`https://${platform}.com/${username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              @{username}
-            </a>
-          </div>
-        ) : null
-      )}
     </>
   );
 }
